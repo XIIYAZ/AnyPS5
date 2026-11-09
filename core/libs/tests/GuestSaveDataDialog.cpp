@@ -3,6 +3,7 @@
 #include "prx/libSceSaveDataDialog.native/SaveDataDialog.hpp"
 #include "prx/libc/include/general/VabiMacros.hpp"
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -39,6 +40,23 @@ int main() {
     Require(sceSaveDataDialogInitialize() == 0, "initialize");
     Require(sceSaveDataDialogInitialize() == SAVE_DATA_DIALOG_ERROR_ALREADY_INITIALIZED, "double init");
     Require(sceSaveDataDialogOpen(nullptr) == SAVE_DATA_DIALOG_ERROR_ARG_NULL, "open with null param");
+    errno = EDOM;
+    Require(sceSaveDataDialogOpen(reinterpret_cast<const void*>(0x10)) == SAVE_DATA_DIALOG_ERROR_ARG_NULL,
+            "open with unreadable param");
+    Require(errno == EDOM, "unreadable param keeps errno");
+    SaveDataDialogParam badItemsParam{};
+    badItemsParam.size = sizeof(badItemsParam);
+    badItemsParam.mode = 1;
+    badItemsParam.items = reinterpret_cast<void*>(0x10);
+    Require(sceSaveDataDialogOpen(&badItemsParam) == SAVE_DATA_DIALOG_ERROR_ARG_NULL, "open with unreadable items");
+    Require(errno == EDOM, "unreadable items keeps errno");
+    SaveDataDialogItems badNamesItems{};
+    badNamesItems.dir_names = reinterpret_cast<const SaveDataDirName*>(0x10);
+    badNamesItems.dir_names_num = 1;
+    badItemsParam.items = &badNamesItems;
+    Require(sceSaveDataDialogOpen(&badItemsParam) == SAVE_DATA_DIALOG_ERROR_ARG_NULL, "open with unreadable dir_names");
+    Require(errno == EDOM, "unreadable dir_names keeps errno");
+    Require(sceSaveDataDialogGetStatus() == SAVE_DATA_DIALOG_STATUS_INITIALIZED, "failed open keeps status");
     Require(sceSaveDataDialogClose(nullptr) == SAVE_DATA_DIALOG_ERROR_NOT_RUNNING, "close while initialized not running");
     Require(sceSaveDataDialogGetResult(&uninitResult) == SAVE_DATA_DIALOG_ERROR_NOT_FINISHED, "get result before open");
     Require(sceSaveDataDialogProgressBarInc(0, 10) == SAVE_DATA_DIALOG_ERROR_NOT_RUNNING, "progress inc while initialized not running");
