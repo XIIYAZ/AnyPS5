@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include "SceTypes.hpp"
 #include "EvpDigest.hpp"
 #include "prx/libSceLibreSsl3/include/Key.hpp"
@@ -254,9 +255,9 @@ int APS5_VABI EVP_PKEY_verify_nid_postfix();
 int APS5_VABI EVP_PKEY_verify_init_nid_postfix();
 const void* APS5_VABI EVP_get_digestbyname_nid_postfix(const char* name);
 int APS5_VABI EVP_sha512_256_nid_postfix();
-int APS5_VABI HKDF_nid_postfix();
-int APS5_VABI HMAC_CTX_free_nid_postfix();
-int APS5_VABI HMAC_CTX_new_nid_postfix();
+int APS5_VABI HKDF_nid_postfix(std::uint8_t* output, std::size_t outputLength, const EvpMd* digest, const std::uint8_t* secret, std::size_t secretLength, const std::uint8_t* salt, std::size_t saltLength, const std::uint8_t* info, std::size_t infoLength);
+void APS5_VABI HMAC_CTX_free_nid_postfix(HmacContext* context);
+HmacContext* APS5_VABI HMAC_CTX_new_nid_postfix();
 int APS5_VABI OPENSSL_init_ssl_nid_postfix(std::uint64_t options, const void* settings);
 int APS5_VABI tls_config_set_cert_mem_nid_postfix();
 int APS5_VABI PEM_read_bio_PUBKEY_nid_postfix();
@@ -389,7 +390,7 @@ int APS5_VABI EC_POINT_dup_nid_postfix();
 int APS5_VABI RSA_set0_key_nid_postfix(LibreSsl3Rsa* rsa, LibreSsl3Bignum* n, LibreSsl3Bignum* e, LibreSsl3Bignum* d);
 int APS5_VABI EVP_PKEY_cmp_nid_postfix(const LibreSsl3EvpPkey* first, const LibreSsl3EvpPkey* second);
 int APS5_VABI d2i_ASN1_SEQUENCE_ANY_nid_postfix();
-int APS5_VABI PKCS5_PBKDF2_HMAC_nid_postfix();
+int APS5_VABI PKCS5_PBKDF2_HMAC_nid_postfix(const char* password, int passwordLength, const unsigned char* salt, int saltLength, int iterations, const EvpMd* digest, int keyLength, unsigned char* output);
 void APS5_VABI ASN1_OCTET_STRING_free_nid_postfix(Asn1String* string);
 int APS5_VABI tls_config_parse_protocols_nid_postfix(std::uint32_t* protocols, const char* text);
 int APS5_VABI SSL_CTX_set_post_handshake_auth_nid_postfix();
@@ -399,6 +400,6 @@ int APS5_VABI SSL_set_quic_transport_params_nid_postfix();
 int APS5_VABI SSL_is_quic_nid_postfix();
 int APS5_VABI X509_get_X509_PUBKEY_nid_postfix();
 void APS5_VABI ECDSA_SIG_get0_nid_postfix(const LibreSsl3EcdsaSig* sig, const void** r, const void** s);
-int APS5_VABI EVP_MD_block_size_nid_postfix();
+int APS5_VABI EVP_MD_block_size_nid_postfix(const LibreSsl3::DigestMethod* digest);
 
 }
