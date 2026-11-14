@@ -5605,7 +5605,7 @@ void StorageTexture::StoreReadbackBeforeLabel(const char* reason, VkDevice devic
         for (const auto* texture : pending.textures) {
             if (texture->descriptor.tileMode != TextureTileMode::kLinear && texture->guestBytes > SmallStoreBytes) continue;
 #if defined(__APPLE__)
-            if (trap && !sharesPage(texture) && (texture->readTrapped.load(std::memory_order_acquire) || !DirectMemoryAliased_nid_postfix(static_cast<std::uintptr_t>(texture->descriptor.baseAddress), static_cast<std::size_t>(texture->guestBytes))) && GuestWriteWatch::GuestWriteWatchTrapReads_nid_postfix(static_cast<std::uintptr_t>(texture->descriptor.baseAddress), static_cast<std::size_t>(texture->guestBytes))) {
+            if (trap && !sharesPage(texture) && HostImportCovers(texture->context, texture->descriptor.baseAddress, static_cast<std::size_t>(texture->guestBytes)) && (texture->readTrapped.load(std::memory_order_acquire) || !DirectMemoryAliased_nid_postfix(static_cast<std::uintptr_t>(texture->descriptor.baseAddress), static_cast<std::size_t>(texture->guestBytes))) && GuestWriteWatch::GuestWriteWatchTrapReads_nid_postfix(static_cast<std::uintptr_t>(texture->descriptor.baseAddress), static_cast<std::size_t>(texture->guestBytes))) {
                 texture->readTrapped.store(true, std::memory_order_release);
                 continue;
             }
