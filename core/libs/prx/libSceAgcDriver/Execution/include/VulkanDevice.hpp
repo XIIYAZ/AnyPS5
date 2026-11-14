@@ -134,8 +134,7 @@ public:
     // once that work completed; the batch is submitted by the queue worker's flush rules (or at once
     // with APS5_LABEL_SUBMIT_NOW=1). `stamp` is the record-order stamp and `queue` the recording
     // queue for the recorder's pending-label table. Returns 0 when recorded on the GPU, 5 when stored
-    // by a completion behind pending CPU write-backs or completion stores, 7 when the host stores it
-    // once its batch completed (Recorder::HostLabel, MoltenVK), else why the CPU must
+    // by a completion behind pending CPU write-backs or completion stores, else why the CPU must
     // write it: 1 nothing recorded (the write is already ordered), 2 write-backs pending (only with
     // APS5_DRAIN_COMPLETION_LABELS=1) and 3 memory not imported, 4 unsuitable size or alignment.
     // `reapFirst` retires finished batches before the checks; a caller recording a group of labels
