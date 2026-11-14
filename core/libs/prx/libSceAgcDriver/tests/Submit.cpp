@@ -760,14 +760,14 @@ void labelResetByItsQueueBeforeItLanded(bool wide, std::size_t resetWord) {
     const std::uint64_t awaited = 1ull << (resetWord * 32u);
     submit(0x20, commands(dataFill(block, 0, blockBytes)));
     AgcDriverWaitIdle_nid_postfix();
-    const auto gpuLabelsBefore = AgcDriver::DriverDetail::gpuLabels.load();
+    const auto gpuLabelsBefore = AgcDriver::DriverDetail::gpuLabels.load() + AgcDriver::DriverDetail::completionLabels.load();
     if (wide) submit(0x20, commands(waitEqual(&gate, 1), waitEqual64(label, awaited, ~0ull), dataFill(block, 0x5a5a5a5au, fillBytes), writeData(reset, 0), waitEqual64(label, awaited, ~0ull), writeData(&second, 1)));
     else submit(0x20, commands(waitEqual(&gate, 1), waitEqual(label, 1), dataFill(block, 0x5a5a5a5au, fillBytes), writeData(label, 0), waitEqual(label, 1), writeData(&second, 1)));
     submit(0, commands(writeData(reset, 1)));
     waitFor(reset, 1, "producer label never landed");
     gate = 1;
     waitFor(reset, 0, "the consumer's reset of the label never landed");
-    check(AgcDriver::DriverDetail::gpuLabels.load() > gpuLabelsBefore, "the consumer's reset of the label was not stored on the GPU behind the fill");
+    check(AgcDriver::DriverDetail::gpuLabels.load() + AgcDriver::DriverDetail::completionLabels.load() > gpuLabelsBefore, "the consumer's reset of the label was not stored on the GPU behind the fill");
     std::this_thread::sleep_for(std::chrono::milliseconds(1200));
     check(second == 0, !wide ? "a wait passed on a label value its own queue had already reset, before the reset reached memory, or the wait expired"
                        : resetWord == 0 ? "an 8-byte wait passed on a label whose low dword its own queue had already reset, before the reset reached memory, or the wait expired"
